@@ -169,18 +169,18 @@
     return "vanilla";
 }
 
-- (NSString *)execute:(NSString *)command error:(NSError *__autoreleasing *)error {
-    return [self execute:command error:error timeout:@0];
+- (void)execute:(NSString *)command error:(NSError *__autoreleasing *)error {
+    [self execute:command error:error timeout:@0];
 }
 
-- (NSString *)execute:(NSString *)command error:(NSError *__autoreleasing *)error timeout:(NSNumber *)timeout {
+- (void)execute:(NSString *)command error:(NSError *__autoreleasing *)error timeout:(NSNumber *)timeout {
     NMSSHLogInfo(@"Exec command %@", command);
 
     // In case of error...
     NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObject:command forKey:@"command"];
 
     if (![self openChannel:error]) {
-        return nil;
+        return;
     }
 
     [self setLastResponse:nil];
@@ -203,7 +203,7 @@
 
         NMSSHLogError(@"Error executing command");
         [self closeChannel];
-        return nil;
+        return;
     }
 
     // Set non-blocking mode
@@ -213,8 +213,8 @@
     CFAbsoluteTime time = CFAbsoluteTimeGetCurrent() + [timeout doubleValue];
 
     // Fetch response from output buffer
-    NSMutableString *response = [[NSMutableString alloc] init];
     for (;;) {
+        NSMutableString *response = [[NSMutableString alloc] init];
         ssize_t rc;
         char buffer[self.bufferSize];
         char errorBuffer[self.bufferSize];
@@ -224,6 +224,7 @@
 
             if (rc > 0) {
                 [response appendFormat:@"%@", [[NSString alloc] initWithBytes:buffer length:rc encoding:NSUTF8StringEncoding]];
+                [self.delegate channel:self didReceiveCommandOutout:[NSString stringWithString:response]] ;
             }
 
             // Store all errors that might occur
@@ -248,12 +249,13 @@
             if (libssh2_channel_eof(self.channel) == 1 || rc == 0) {
                 while ((rc  = libssh2_channel_read(self.channel, buffer, (ssize_t)sizeof(buffer))) > 0) {
                     [response appendFormat:@"%@", [[NSString alloc] initWithBytes:buffer length:rc encoding:NSUTF8StringEncoding] ];
+                    [self.delegate channel:self didReceiveCommandOutout:[NSString stringWithString:response]] ;
                 }
 
                 [self setLastResponse:[response copy]];
                 [self closeChannel];
 
-                return self.lastResponse;
+                return;
             }
 
             // Check if the connection timed out
@@ -270,12 +272,13 @@
 
                 while ((rc  = libssh2_channel_read(self.channel, buffer, (ssize_t)sizeof(buffer))) > 0) {
                     [response appendFormat:@"%@", [[NSString alloc] initWithBytes:buffer length:rc encoding:NSUTF8StringEncoding] ];
+                    [self.delegate channel:self didReceiveCommandOutout:[NSString stringWithString:response]] ;
                 }
 
                 [self setLastResponse:[response copy]];
                 [self closeChannel];
 
-                return self.lastResponse;
+                return;
             }
         } while (rc > 0);
 
@@ -297,7 +300,7 @@
     NMSSHLogError(@"Error fetching response from command");
     [self closeChannel];
 
-    return nil;
+    return;
 }
 
 // -----------------------------------------------------------------------------

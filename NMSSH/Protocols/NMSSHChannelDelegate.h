@@ -46,4 +46,6 @@
  */
 - (void)channelShellDidClose:(NMSSHChannel *)channel;
 
+- (void)channel:(NMSSHChannel *)channel didReceiveCommandOutout:(NSString *)message;
+
 @end

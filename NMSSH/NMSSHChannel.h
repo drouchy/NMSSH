@@ -87,9 +87,8 @@ typedef NS_ENUM(NSInteger, NMSSHChannelType)  {
 
  @param command Any shell script that is available on the server
  @param error Error handler
- @returns Shell command response
  */
-- (NSString *)execute:(NSString *)command error:(NSError **)error;
+- (void)execute:(NSString *)command error:(NSError **)error;
 
 /**
  Execute a shell command on the server with a given timeout.
@@ -103,7 +102,7 @@ typedef NS_ENUM(NSInteger, NMSSHChannelType)  {
  @param timeout The time to wait (in seconds) before giving up on the request
  @returns Shell command response
  */
-- (NSString *)execute:(NSString *)command error:(NSError **)error timeout:(NSNumber *)timeout;
+- (void)execute:(NSString *)command error:(NSError **)error timeout:(NSNumber *)timeout;
 
 /// ----------------------------------------------------------------------------
 /// @name Remote shell session
