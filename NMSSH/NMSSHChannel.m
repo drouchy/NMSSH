@@ -224,7 +224,7 @@
 
             if (rc > 0) {
                 [response appendFormat:@"%@", [[NSString alloc] initWithBytes:buffer length:rc encoding:NSUTF8StringEncoding]];
-                [self.delegate channel:self didReceiveCommandOutout:[NSString stringWithString:response]] ;
+                [self.delegate channel:self didReceiveCommandOutput:[NSString stringWithString:response]] ;
             }
 
             // Store all errors that might occur
@@ -249,7 +249,7 @@
             if (libssh2_channel_eof(self.channel) == 1 || rc == 0) {
                 while ((rc  = libssh2_channel_read(self.channel, buffer, (ssize_t)sizeof(buffer))) > 0) {
                     [response appendFormat:@"%@", [[NSString alloc] initWithBytes:buffer length:rc encoding:NSUTF8StringEncoding] ];
-                    [self.delegate channel:self didReceiveCommandOutout:[NSString stringWithString:response]] ;
+                    [self.delegate channel:self didReceiveCommandOutput:[NSString stringWithString:response]] ;
                 }
 
                 [self setLastResponse:[response copy]];
@@ -272,7 +272,7 @@
 
                 while ((rc  = libssh2_channel_read(self.channel, buffer, (ssize_t)sizeof(buffer))) > 0) {
                     [response appendFormat:@"%@", [[NSString alloc] initWithBytes:buffer length:rc encoding:NSUTF8StringEncoding] ];
-                    [self.delegate channel:self didReceiveCommandOutout:[NSString stringWithString:response]] ;
+                    [self.delegate channel:self didReceiveCommandOutput:[NSString stringWithString:response]] ;
                 }
 
                 [self setLastResponse:[response copy]];
